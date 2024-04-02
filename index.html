@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bubble Pop Mania</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #0099ff; /* Set a different background color */
+  }
+  #game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  .bubble {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  }
+  #score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white; /* Set text color to white */
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+<audio id="pop-sound" src="https://www.soundjay.com/button/beep-02.wav"></audio>
+<div id="game-container"></div>
+<div id="score">Time Left: 15 | Bubbles Popped: 0</div>
+<script>
+  let bubblesPopped = 0;
+  let timeLeft = 15;
+  let timerId;
+
+  function createBubble() {
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    const size = 50;
+    const x = Math.random() * (window.innerWidth - size);
+    const y = Math.random() * (window.innerHeight - size);
+    bubble.style.left = x + 'px';
+    bubble.style.top = y + 'px';
+    bubble.style.backgroundColor = getRandomColor(); // Set random bubble color
+    bubble.onclick = function() {
+      this.style.opacity = 0;
+      this.style.transform = 'scale(0)';
+      increaseBubblesPopped();
+      playPopSound();
+      setTimeout(() => {
+        bubble.remove();
+      }, 100);
+    };
+    document.getElementById('game-container').appendChild(bubble);
+  }
+
+  function increaseBubblesPopped() {
+    bubblesPopped++;
+    document.getElementById('score').innerText = 'Time Left: ' + timeLeft + ' | Bubbles Popped: ' + bubblesPopped;
+    if (bubblesPopped >= 30) {
+      clearInterval(timerId);
+      alert('Congratulations! You popped ' + bubblesPopped + ' bubbles within the time limit.');
+      location.reload(); // Refresh the page to restart the game
+    }
+  }
+
+  function playPopSound() {
+    const popSound = document.getElementById('pop-sound');
+    popSound.currentTime = 0;
+    popSound.play();
+  }
+
+  function updateTimer() {
+    timeLeft--;
+    if (timeLeft === 0 && bubblesPopped < 30) {
+      clearInterval(timerId);
+      alert('Time\'s up! You didn\'t pop enough bubbles within the time limit. Try again!');
+      location.reload(); // Refresh the page to restart the game
+    }
+    document.getElementById('score').innerText = 'Time Left: ' + timeLeft + ' | Bubbles Popped: ' + bubblesPopped;
+  }
+
+  function startGame() {
+    timerId = setInterval(updateTimer, 1000); // Start the timer
+    setInterval(createBubble, 300); // Adjusted interval for faster bubble spawning
+    setTimeout(() => {
+      clearInterval(timerId); // Clear the timer
+      alert('Time\'s up! You didn\'t pop enough bubbles within the time limit. Try again!');
+      location.reload(); // Refresh the page to restart the game
+    }, timeLeft * 1000); // Set timeout based on timeLeft
+  }
+
+  function getRandomColor() {
+    const colors = ['#ff6666', '#66ff66', '#6699ff', '#ffcc00']; // Different bubble colors
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  startGame();
+</script>
+</body>
+</html>
